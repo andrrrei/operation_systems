@@ -7,13 +7,14 @@
 #include <fcntl.h>
 #include <errno.h>
 
-char * readfile(int f1) {
+// Function to read content of a file
+char *readfile(int f1) {
     int fsize = 32;
     int newsize = 32;
-    char * buf = (char *)calloc(fsize, sizeof(char));
+    char *buf = (char *)calloc(fsize, sizeof(char));
     int check;
     int realsize = 0;
-    while(1) {
+    while (1) {
         check = read(f1, buf + fsize - newsize, newsize);
         realsize += check;
         if (check == 0) { break; }
@@ -26,14 +27,15 @@ char * readfile(int f1) {
     return buf;
 }
 
-int rfind(char * buf, int * len) {
+// Function to find the position of the last non-space character
+int rfind(char *buf, int *len) {
     int i;
     int end;
     for (i = strlen(buf) - 1; i >= 0; i--) {
         if (buf[i] != '\n' && buf[i] != '\0' && buf[i] != '\t' && buf[i] != ' ') { 
             end = i;
             break; 
-    }
+        }
     }
     for (i - 1; i >= 0; i--) {
         if (buf[i] == '\n' || buf[i] == '\0' || buf[i] == '\t' || buf[i] == ' ') { break; }
@@ -42,7 +44,8 @@ int rfind(char * buf, int * len) {
     return i + 1;
 }
 
-int lfind(char * buf, int * len) {
+// Function to find the position of the first non-space character
+int lfind(char *buf, int *len) {
     int i;
     int start;
     for (i = 0; i < strlen(buf); i++) {
@@ -56,28 +59,29 @@ int lfind(char * buf, int * len) {
     }
     *len = i - start;
     return start;
-
 }
 
-void copyfile(int f2, char * buf) {
+// Function to copy content of a file with modified word positions
+void copyfile(int f2, char *buf) {
     int llen;
     int rpos = rfind(buf, &llen);
-    int flen; //size of the first word
+    int flen; // Size of the first word
     int lpos = lfind(buf, &flen);
 
-    write(f2, buf, lpos); // trash from the start
-    write(f2, buf + rpos, llen); //last word
-    write(f2, buf + lpos + llen + 1, rpos - lpos - flen); // the middle part
-    write(f2, buf + lpos, flen); //first word
-    write(f2, buf + rpos + llen, strlen(buf) - rpos - llen); // trash from the end
+    write(f2, buf, lpos); // Trash from the start
+    write(f2, buf + rpos, llen); // Last word
+    write(f2, buf + lpos + llen + 1, rpos - lpos - flen); // The middle part
+    write(f2, buf + lpos, flen); // First word
+    write(f2, buf + rpos + llen, strlen(buf) - rpos - llen); // Trash from the end
 }
 
-void casedir(char * dirname) {
-    char * name = NULL;
+// Function to handle directory operations
+void casedir(char *dirname) {
+    char *name = NULL;
     int namesize = 256;
-    struct dirent * info;
+    struct dirent *info;
     struct stat st;
-    DIR * d = opendir(dirname);
+    DIR *d = opendir(dirname);
     chdir(dirname);
     while ((info = readdir(d))) {
         lstat(info->d_name, &st);
@@ -86,7 +90,6 @@ void casedir(char * dirname) {
             stat(info->d_name, &st);
             name = (char*)calloc(sizeof(char), namesize);
             readlink(info->d_name, name, namesize);
-            //name[namesize] = '\0';
             printf("File name: %s\nFile ID: %lu\n\n", name, st.st_ino);
             free(name);
             name = NULL;
@@ -96,10 +99,11 @@ void casedir(char * dirname) {
     closedir(d);
 }
 
-int casereg(char * filename, struct stat p) { 
+// Function to handle regular file operations
+int casereg(char *filename, struct stat p) { 
     int size = strlen(filename);
-    char * name = (char *)calloc(size + 4, sizeof(char));
-    char * new = "new";
+    char *name = (char *)calloc(size + 4, sizeof(char));
+    char *new = "new";
     memcpy(name, filename, size);
     memcpy(name + size, new, strlen(new));
     int f2 = open(name, O_CREAT | O_EXCL | O_WRONLY, p.st_mode);
@@ -111,7 +115,7 @@ int casereg(char * filename, struct stat p) {
         f2 = open(name, O_CREAT | O_TRUNC | O_WRONLY, p.st_mode);
     }
     int f1 = open(filename, O_RDONLY);
-    char * buf = readfile(f1);
+    char *buf = readfile(f1);
     copyfile(f2, buf);
     free(name);
     free(buf);
@@ -119,9 +123,7 @@ int casereg(char * filename, struct stat p) {
     close(f2);
 }
 
-
-int main(int argc, char * argv[]) {
-    
+int main(int argc, char *argv[]) {
     struct stat p;
     stat(argv[1], &p);
     if (S_ISDIR(p.st_mode)) {

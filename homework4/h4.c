@@ -5,7 +5,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-void readparams(bool  * s, int * num, int * linenum, int argc, char * argv[]) {
+// Function to read command line arguments
+void readparams(bool *s, int *num, int *linenum, int argc, char *argv[]) {
     for (int i = 0; i < argc - 1; i++) {
         if (strcmp(argv[i], "-s") == 0) { *s = true; }
         else if (argv[i][0] == '-') { *num = atoi(argv[i] + 1); }
@@ -13,15 +14,16 @@ void readparams(bool  * s, int * num, int * linenum, int argc, char * argv[]) {
     }
 }
 
-char * readline(FILE * f) {
+// Function to read a line from a file
+char *readline(FILE *f) {
     int cursize = 16;
     int newsize = 4;
-    char * tmp = NULL;
+    char *tmp = NULL;
     tmp = (char *)calloc(cursize, sizeof(char));
     char c;
     int i = 0;
     c = fgetc(f);
-    while(feof(f) == 0 && c != '\n') {
+    while (feof(f) == 0 && c != '\n') {
         if (i >= cursize - 1) {
             cursize += newsize;
             tmp = (char *)realloc(tmp, cursize);
@@ -34,8 +36,9 @@ char * readline(FILE * f) {
     return tmp;
 }
 
-void more(bool s, int num, int linenum, FILE * f) {
-    char * str = NULL;
+// Function to display contents of a file page-wise
+void more(bool s, int num, int linenum, FILE *f) {
+    char *str = NULL;
     for (int i = 0; i < linenum; i++) { 
         str = readline(f); 
         free(str);
@@ -48,7 +51,7 @@ void more(bool s, int num, int linenum, FILE * f) {
         c = getchar();
         if (c == ' ') {
             int i = 1;
-            while(feof(f) == 0 && i <= num) {
+            while (feof(f) == 0 && i <= num) {
                 str = readline(f);
                 if (s == false || prevstr == false || (prevstr == true && strlen(str) != 0)) {
                     printf("%s\n", str);
@@ -64,25 +67,27 @@ void more(bool s, int num, int linenum, FILE * f) {
     }
 }
 
-
-int main(int argc, char* argv[]) {
-
+int main(int argc, char *argv[]) {
+    // Terminal configuration
     static struct termios oldt, newt;
-    tcgetattr(STDIN_FILENO, &oldt); //сохранение текущего режима
+    tcgetattr(STDIN_FILENO, &oldt); // Save current terminal settings
     newt = oldt;
     newt.c_lflag &= ~(ICANON);
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt); // изменение
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt); // Set new terminal settings
     
-
     bool s = false;
     int num = 10;
     int linenum = 0;
+    
     readparams(&s, &num, &linenum, argc, argv);
-    FILE * f = fopen(argv[argc - 1], "r");
+    
+    FILE *f = fopen(argv[argc - 1], "r");
+    
     more(s, num, linenum, f);
 
-
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt); // восстановление исходного режима
+    // Restore terminal settings
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    
     fclose(f);
     return 0;
 }

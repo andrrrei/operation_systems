@@ -4,6 +4,7 @@
 const int elem = 8;
 const int matrsize = 50;
 
+// Function to print a matrix
 void printmatr(int matr[matrsize][matrsize], int m, int n) {
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
@@ -14,6 +15,7 @@ void printmatr(int matr[matrsize][matrsize], int m, int n) {
     printf("\n");
 }
 
+// Function to initialize a matrix with a constant value
 void makematrconst(int matr[matrsize][matrsize], int m, int n) {
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
@@ -22,6 +24,7 @@ void makematrconst(int matr[matrsize][matrsize], int m, int n) {
     }
 }
 
+// Function to initialize a matrix with random values
 void makematrrand(int matr[matrsize][matrsize], int m, int n) {
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
@@ -30,6 +33,7 @@ void makematrrand(int matr[matrsize][matrsize], int m, int n) {
     }
 }
 
+// Function to perform matrix multiplication
 void mult(int matr1[matrsize][matrsize], int m1, int n1, int matr2[matrsize][matrsize], int n2) {
     int res[50][50] = {0};
     for (int i = 0; i < m1; i++) {
@@ -43,6 +47,7 @@ void mult(int matr1[matrsize][matrsize], int m1, int n1, int matr2[matrsize][mat
     printmatr(res, m1, n2);
 }
 
+// Function to transpose a matrix
 void transp(int matr[matrsize][matrsize], int m, int n) {
     int res[matrsize][matrsize];
     for (int i = 0; i < n; i++) {
@@ -78,7 +83,7 @@ int main() {
     printmatr(matr2, m2, n2);
 
     if (n1 != m2) {
-        printf("%s\n", "Matrix multiplication can`t be performed because you`ve entered incorrect dimensions");
+        printf("%s\n", "Matrix multiplication can't be performed because you've entered incorrect dimensions");
         printf("\n");
     }
     else {
